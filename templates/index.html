@@ -5,9 +5,10 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Medline Bling</title>
-    <link rel="stylesheet" type="text/css" href="medline.css">
+    <link rel="stylesheet" type="text/css" href="/static/medline.css">
+    <script type=text/javascript>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="medline.js"></script>
+    <script src="/static/medline.js"></script>
 </head>
 
 <body>
@@ -24,13 +25,10 @@
         1-800-MEDLINE BLING<br />
         </div>
         <div id="searchbar">
-        <input id="textarea" type="search" name="medlinesearch">
-            <input type="button" id="search" value="search">
+            <input id="textarea" type="search" name="medlinesearch">
+            <button id="search">Search</button>    
         </div>
     </div> 
-    
 </div>
-
 </body>
-
 </html>

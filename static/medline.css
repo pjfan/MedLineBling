@@ -19,6 +19,12 @@ body {
 #content {
     padding: 10px;
     margin: 20px;
-    background-color: #FFFFFF;
     float: right;
+    font-family: sans-serif;
+    font-size: 18px;
+/*    font-style: italic;*/
+    text-align: left;
+    margin-right: 200px;
+    display: block;
+    width: 600px;
 }

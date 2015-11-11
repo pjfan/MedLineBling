@@ -11,20 +11,24 @@ app = flask.Flask(__name__)
 
 @app.route('/')
 def main_page():
-    render_template()
+    return flask.render_template('index.html')
 
 
-@app.route('/<drug_name>')
-def main_page(drug_name):
+@app.route('/drug', methods=['GET'])
+def results_page():
+    drug_name = flask.request.args.get('medlinesearch','blank',type=str)
     blang = medline_bling(drug_name)
-    return str(blang)
+    return flask.jsonify({"drug":str.lower(drug_name), "definition":blang[0], "others":blang[1]})
 
 def medline_bling(drug_name):
     #Call the ND-FRT API find the active ingredient in the drug get their concept_nui id.
     url = "https://rxnav.nlm.nih.gov/REST/Ndfrt/search.json?"
     params = {"conceptName":drug_name, "kindName":"INGREDIENT_KIND"}
     r = requests.get(url, params=params)
-    concept_nui = r.json()["groupConcepts"][0]["concept"][0]["conceptNui"]
+    try:
+        concept_nui = r.json()["groupConcepts"][0]["concept"][0]["conceptNui"]
+    except TypeError:
+        return "Error: Drug Not Found", ["Error: Drug Not Found", "Error: Drug Not Found"]
 
     #Call the ND-FRT API find out what this active ingredient/drug does (generally).
     url2 = "https://rxnav.nlm.nih.gov/REST/Ndfrt/properties.json?"
