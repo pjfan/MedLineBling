@@ -12,8 +12,7 @@ app = flask.Flask(__name__)
 @app.route('/')
 def main_page():
     return flask.render_template('index.html')
-
-
+    
 @app.route('/drug', methods=['GET'])
 def results_page():
     drug_name = flask.request.args.get('medlinesearch','blank',type=str)
@@ -27,26 +26,35 @@ def medline_bling(drug_name):
     r = requests.get(url, params=params)
     try:
         concept_nui = r.json()["groupConcepts"][0]["concept"][0]["conceptNui"]
-    except TypeError:
+    except (TypeError, KeyError):
         return "Error: Drug Not Found", ["Error: Drug Not Found", "Error: Drug Not Found"]
 
     #Call the ND-FRT API find out what this active ingredient/drug does (generally).
     url2 = "https://rxnav.nlm.nih.gov/REST/Ndfrt/properties.json?"
     params2 = {"nui":concept_nui, "propertyName":"MeSH_Definition"}
     r = requests.get(url2, params=params2)
-    definition = r.json()["groupProperties"][0]["property"][0]["propertyValue"]
+    try:
+        definition = r.json()["groupProperties"][0]["property"][0]["propertyValue"]
+    except (TypeError, KeyError):
+        return "Error: Drug Not Found", ["Error: Drug Not Found", "Error: Drug Not Found"]
 
     #Call the RxNorms API. Convert the nui id into an rxNormId.
     url3 = "https://rxnav.nlm.nih.gov/REST/rxcui.json?"
     params3 = {"idtype":"NUI", "id":concept_nui}
     r = requests.get(url3, params=params3)
-    rxNormId = r.json()["idGroup"]["rxnormId"]
+    try:
+        rxNormId = r.json()["idGroup"]["rxnormId"]
+    except (TypeError, KeyError):
+        return "Error: Drug Not Found", ["Error: Drug Not Found", "Error: Drug Not Found"]
 
     #Call the RxNorm API. Use the rxNormId to find other drugs with the same ingredient.
     url4 = "https://rxnav.nlm.nih.gov/REST/brands.json?"
     params4 = {"ingredientids":rxNormId}
     r = requests.get(url4, params=params4)
-    other_drugs = [drug["name"] for drug in r.json()["brandGroup"]["conceptProperties"]]
+    try:
+        other_drugs = [drug["name"] for drug in r.json()["brandGroup"]["conceptProperties"]]
+    except (TypeError, KeyError):
+        return "Error: Drug Not Found", ["Error: Drug Not Found", "Error: Drug Not Found"]
 
     return definition, other_drugs
 
